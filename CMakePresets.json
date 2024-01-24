@@ -20,7 +20,23 @@
       "hidden": true,
       "inherits": "windows-base",
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "cl.exe"
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_CXX_STANDARD": "17",
+        "QL_ENABLE_SESSIONS": "ON",
+        "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
+        "QL_HIGH_RESOLUTION_DATE": "ON",
+        "QL_FASTER_LAZY_OBJECTS": "ON",
+        "QL_THROW_IN_CYCLES": "ON",
+        "QL_NULL_AS_FUNCTIONS": "ON",
+        "QL_USE_INDEXED_COUPON": "ON",
+        "QL_USE_STD_CLASSES": "ON",
+        "QL_USE_STD_SHARED_PTR": "ON",
+        "QL_USE_STD_ANY": "ON",
+        "QL_USE_STD_OPTIONAL": "ON",
+        "QL_USE_STD_FUNCTION": "ON",
+        "QL_USE_STD_TUPLE": "ON",
+        "QL_COMPILE_WARNING_AS_ERROR": "OFF",
+        "CMAKE_PREFIX_PATH": "C:\\Users\\asadu\\.julia\\dev\\libcxxwrap_julia_jll\\override\\lib\\cmake"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -304,7 +320,7 @@
         "QL_ENABLE_SESSIONS": "ON",
         "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
         "QL_HIGH_RESOLUTION_DATE": "ON",
-        "QL_FASTER_LAZY_OBJECTS": "OFF",
+        "QL_FASTER_LAZY_OBJECTS": "ON",
         "QL_THROW_IN_CYCLES": "ON",
         "QL_NULL_AS_FUNCTIONS": "ON",
         "QL_USE_INDEXED_COUPON": "ON",

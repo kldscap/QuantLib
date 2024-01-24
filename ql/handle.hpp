@@ -96,6 +96,8 @@ namespace QuantLib {
         //! strict weak ordering
         template <class U>
         bool operator<(const Handle<U>& other) const { return link_ < other.link_; }
+
+        typedef T value_type;
     };
 
     //! Relinkable handle to an observable

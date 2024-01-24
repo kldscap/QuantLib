@@ -71,6 +71,8 @@ option(QL_USE_STD_TUPLE "Use std::tuple instead of boost::tuple" ON)
 set(QL_EXTERNAL_SUBDIRECTORIES "" CACHE STRING "Optional list of external source directories to be added to the build (semicolon-separated)")
 set(QL_EXTRA_LINK_LIBRARIES "" CACHE STRING "Optional extra link libraries to add to QuantLib")
 
+message("using stl pointers" ${QL_USE_STD_SHARED_PTR})
+
 # Require C++14 or higher
 if (NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -288,3 +290,5 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/\\\\.lgt"
     "/\\\\.mis")
 include(CPack)
+
+add_subdirectory("quantlibjl")
