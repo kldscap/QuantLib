@@ -14,13 +14,13 @@ get_filename_component(JlCxx_location ${JlCxx_location} DIRECTORY)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${JlCxx_location}")
 
 # need to include Julia and JLCxx include files 
-set(JLCXX_INCLUDE_DIR C:/Users/asadu/.julia/dev/libcxxwrap_julia_jll/override/include)
+# set(JLCXX_INCLUDE_DIR C:/Users/asadu/.julia/dev/libcxxwrap_julia_jll/override/include)
 include_directories(${Julia_INCLUDE_DIRS} ${JLCXX_INCLUDE_DIR} )
 
 # set jlcxx link libraries
 set(JLCXX_TARGET cxxwrap_julia)
 set(JLCXX_STL_TARGET cxxwrap_julia_stl)
-link_directories("C:/Users/asadu/.julia/dev/libcxxwrap_julia_jll/override/lib")
+# link_directories("C:/Users/asadu/.julia/dev/libcxxwrap_julia_jll/override/lib")
 
 # quantlib include 
 include_directories(${QUANTLIB_SOURCE_DIR})
