@@ -35,8 +35,7 @@
         "QL_USE_STD_OPTIONAL": "ON",
         "QL_USE_STD_FUNCTION": "ON",
         "QL_USE_STD_TUPLE": "ON",
-        "QL_COMPILE_WARNING_AS_ERROR": "OFF",
-        "CMAKE_PREFIX_PATH": "C:\\Users\\asadu\\.julia\\dev\\libcxxwrap_julia_jll\\override\\lib\\cmake"
+        "QL_COMPILE_WARNING_AS_ERROR": "OFF"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
