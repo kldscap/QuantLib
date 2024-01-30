@@ -6,7 +6,11 @@ project(quantlibjl)
 # include("../cmake/writeAll.cmake")
 # include("../cmake/commonSettings.cmake")
 
-add_compile_options(/bigobj)
+if (MSVC)
+  add_compile_options(/bigobj)
+else ()
+  add_compile_options(-Wa,-mbig-obj)
+endif ()
 
 find_package(JlCxx REQUIRED)
 get_target_property(JlCxx_location JlCxx::cxxwrap_julia LOCATION)
