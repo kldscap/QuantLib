@@ -40,6 +40,12 @@ IF (JlCxx_FOUND)
         message(STATUS "dir='${dir}'")
     endforeach()
 
+    install(TARGETS quantlibjl
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/quantlibjl
+    )
+
     add_library(quantlibjl SHARED "time.cpp" "ratehelpers.cpp" "marketelements.cpp" "observer.cpp" "module.cpp" "indexes.cpp" "timeseries.cpp" "currencies.cpp" "rounding.cpp" "daycounters.cpp")
     
     # target_link_libraries(JLQuantLib ${JLCXX_TARGET} ${JLCXX_STL_TARGET} ${Julia_LIBRARY})
