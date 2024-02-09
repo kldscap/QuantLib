@@ -255,4 +255,36 @@ void time_module(jlcxx::Module& mod) {
     mod.set_const("UK_Metals", UnitedKingdom::Metals);
     mod.add_type<UnitedKingdom>("UnitedKingdom", jlcxx::julia_base_type<Calendar>()).constructor<UnitedKingdom::Market>();
 
+    // China Calendar
+    mod.add_bits<China::Market>("CH_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("CH_SSE", China::SSE);
+    mod.set_const("CH_IB", China::IB);
+    mod.add_type<China>("China", jlcxx::julia_base_type<Calendar>()).constructor<China::Market>();
+
+    // Canada Calendar
+    mod.add_bits<Canada::Market>("CA_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("CA_Settlement", Canada::Settlement);
+    mod.set_const("CA_TSX", Canada::TSX);
+    mod.add_type<Canada>("Canada", jlcxx::julia_base_type<Calendar>()).constructor<Canada::Market>();
+
+    // Australia Calendar
+    mod.add_bits<Australia::Market>("AU_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("AU_Settlement", Australia::Settlement);
+    mod.set_const("AU_ASX", Australia::ASX);
+    mod.add_type<Australia>("Australia", jlcxx::julia_base_type<Calendar>()).constructor<Australia::Market>();
+
+    // Italy Calendar
+    mod.add_bits<Italy::Market>("IT_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("IT_Settlement", Italy::Settlement);
+    mod.set_const("IT_Exchange", Italy::Exchange);
+    mod.add_type<Italy>("Italy", jlcxx::julia_base_type<Calendar>()).constructor<Italy::Market>();
+
+    // Japan Calendar
+    // TODO: Not sure the syntax for no enum market
+    mod.add_type<Japan>("JN", jlcxx::julia_base_type<Calendar>()).constructor();
+    
+    // NewZealand Calendar
+    // TODO: Not sure the syntax for no enum market
+    mod.add_type<NewZealand>("NZ", jlcxx::julia_base_type<Calendar>()).constructor();
+
 }
