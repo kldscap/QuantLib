@@ -24,6 +24,12 @@ namespace jlcxx {
     template<> struct SuperType<QuantLib::UnitedStates> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::Germany> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::UnitedKingdom> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::China> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Canada> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Australia> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Italy> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Japan> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::NewZealand> { typedef QuantLib::Calendar type; };
 
     // template<> struct IsBits<QuantLib::UnitedStates::Market> : std::true_type {};
 
@@ -281,10 +287,10 @@ void time_module(jlcxx::Module& mod) {
 
     // Japan Calendar
     // TODO: Not sure the syntax for no enum market
-    mod.add_type<Japan>("JN", jlcxx::julia_base_type<Calendar>()).constructor();
+    mod.add_type<Japan>("Japan", jlcxx::julia_base_type<Calendar>()).constructor();
     
     // NewZealand Calendar
     // TODO: Not sure the syntax for no enum market
-    mod.add_type<NewZealand>("NZ", jlcxx::julia_base_type<Calendar>()).constructor();
+    mod.add_type<NewZealand>("NewZealand", jlcxx::julia_base_type<Calendar>()).constructor();
 
 }
