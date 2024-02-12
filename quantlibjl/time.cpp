@@ -28,6 +28,8 @@ namespace jlcxx {
     template<> struct SuperType<QuantLib::Canada> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::Australia> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::Italy> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::France> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::SouthKorea> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::Japan> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::NewZealand> { typedef QuantLib::Calendar type; };
 
@@ -285,12 +287,22 @@ void time_module(jlcxx::Module& mod) {
     mod.set_const("IT_Exchange", Italy::Exchange);
     mod.add_type<Italy>("Italy", jlcxx::julia_base_type<Calendar>()).constructor<Italy::Market>();
 
+    // France Calendar
+    mod.add_bits<France::Market>("FR_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("FR_Settlement", France::Settlement);
+    mod.set_const("FR_Exchange", France::Exchange);
+    mod.add_type<France>("France", jlcxx::julia_base_type<Calendar>()).constructor<France::Market>();
+
+    // SouthKorea Calendar
+    mod.add_bits<SouthKorea::Market>("SE_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("SE_Settlement", SouthKorea::Settlement);
+    mod.set_const("SE_KRX", SouthKorea::KRX);
+    mod.add_type<SouthKorea>("SouthKorea", jlcxx::julia_base_type<Calendar>()).constructor<SouthKorea::Market>();
+
     // Japan Calendar
-    // TODO: Not sure the syntax for no enum market
     mod.add_type<Japan>("Japan", jlcxx::julia_base_type<Calendar>()).constructor();
     
     // NewZealand Calendar
-    // TODO: Not sure the syntax for no enum market
     mod.add_type<NewZealand>("NewZealand", jlcxx::julia_base_type<Calendar>()).constructor();
 
 }
