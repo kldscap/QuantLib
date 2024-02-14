@@ -24,6 +24,14 @@ namespace jlcxx {
     template<> struct SuperType<QuantLib::UnitedStates> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::Germany> { typedef QuantLib::Calendar type; };
     template<> struct SuperType<QuantLib::UnitedKingdom> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::China> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Canada> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Australia> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Italy> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::France> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::SouthKorea> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::Japan> { typedef QuantLib::Calendar type; };
+    template<> struct SuperType<QuantLib::NewZealand> { typedef QuantLib::Calendar type; };
 
     // template<> struct IsBits<QuantLib::UnitedStates::Market> : std::true_type {};
 
@@ -254,5 +262,47 @@ void time_module(jlcxx::Module& mod) {
     mod.set_const("UK_Exchange", UnitedKingdom::Exchange);
     mod.set_const("UK_Metals", UnitedKingdom::Metals);
     mod.add_type<UnitedKingdom>("UnitedKingdom", jlcxx::julia_base_type<Calendar>()).constructor<UnitedKingdom::Market>();
+
+    // China Calendar
+    mod.add_bits<China::Market>("CH_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("CH_SSE", China::SSE);
+    mod.set_const("CH_IB", China::IB);
+    mod.add_type<China>("China", jlcxx::julia_base_type<Calendar>()).constructor<China::Market>();
+
+    // Canada Calendar
+    mod.add_bits<Canada::Market>("CA_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("CA_Settlement", Canada::Settlement);
+    mod.set_const("CA_TSX", Canada::TSX);
+    mod.add_type<Canada>("Canada", jlcxx::julia_base_type<Calendar>()).constructor<Canada::Market>();
+
+    // Australia Calendar
+    mod.add_bits<Australia::Market>("AU_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("AU_Settlement", Australia::Settlement);
+    mod.set_const("AU_ASX", Australia::ASX);
+    mod.add_type<Australia>("Australia", jlcxx::julia_base_type<Calendar>()).constructor<Australia::Market>();
+
+    // Italy Calendar
+    mod.add_bits<Italy::Market>("IT_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("IT_Settlement", Italy::Settlement);
+    mod.set_const("IT_Exchange", Italy::Exchange);
+    mod.add_type<Italy>("Italy", jlcxx::julia_base_type<Calendar>()).constructor<Italy::Market>();
+
+    // France Calendar
+    mod.add_bits<France::Market>("FR_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("FR_Settlement", France::Settlement);
+    mod.set_const("FR_Exchange", France::Exchange);
+    mod.add_type<France>("France", jlcxx::julia_base_type<Calendar>()).constructor<France::Market>();
+
+    // SouthKorea Calendar
+    mod.add_bits<SouthKorea::Market>("SE_Market", jlcxx::julia_type("CppEnum"));
+    mod.set_const("SE_Settlement", SouthKorea::Settlement);
+    mod.set_const("SE_KRX", SouthKorea::KRX);
+    mod.add_type<SouthKorea>("SouthKorea", jlcxx::julia_base_type<Calendar>()).constructor<SouthKorea::Market>();
+
+    // Japan Calendar
+    mod.add_type<Japan>("Japan", jlcxx::julia_base_type<Calendar>()).constructor();
+    
+    // NewZealand Calendar
+    mod.add_type<NewZealand>("NewZealand", jlcxx::julia_base_type<Calendar>()).constructor();
 
 }
