@@ -1,5 +1,5 @@
 #ifndef quantlibjl_modules_hpp
-#define quantlib_modules_hpp
+#define quantlibjl_modules_hpp
 
 #define STRING(TYPE)                     \
     method("string", [](const TYPE& x) { \

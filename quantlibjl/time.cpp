@@ -180,21 +180,21 @@ void time_module(jlcxx::Module& mod) {
         .method("fractionOfDay", &Date::fractionOfDay)
         .method("fractionOfSecond", &Date::fractionOfSecond)
         // .method("dateTime", &Date::dateTime)  // ERROR: No appropriate factory for type class boost::posix_time::ptime
-        .method("localDateTime", &Date::localDateTime)
-        .method("universalDateTime", &Date::universalDateTime)
+        
+        
         // .method("ticksPerSecond", &Date::ticksPerSecond)  // ERROR: No appropriate factory for type class boost::posix_time::ptime
 #endif
-        .method("todaysDate", &Date::todaysDate)
-        .method("minDate", &Date::minDate)
-        .method("maxDate", &Date::maxDate)
-        .method("isLeap", &Date::isLeap)
-        .method("endOfMonth", &Date::endOfMonth)
-        .method("isEndOfMonth", &Date::isEndOfMonth)
-        .method("nextWeekday", &Date::nextWeekday)
-        .method("nthWeekday", &Date::nthWeekday)
         .STRING(Date);
-    
-    
+    mod.method("localDateTime", &Date::localDateTime);
+    mod.method("universalDateTime", &Date::universalDateTime);
+    mod.method("todaysDate", &Date::todaysDate);
+    mod.method("minDate", &Date::minDate);
+    mod.method("maxDate", &Date::maxDate);
+    mod.method("isLeap", &Date::isLeap);
+    mod.method("endOfMonth", &Date::endOfMonth);
+    mod.method("isEndOfMonth", &Date::isEndOfMonth);
+    mod.method("nextWeekday", &Date::nextWeekday);
+    mod.method("nthWeekday", &Date::nthWeekday);
 
     // friends of Date
     mod.method("daysBetween", &daysBetween);
@@ -215,15 +215,14 @@ void time_module(jlcxx::Module& mod) {
 
 
     // IMM
-    mod.add_type<IMM>("IMM")
-        .method("isIMMdate", &IMM::isIMMdate)
-        .method("isIMMcode", &IMM::isIMMcode)
-        .method("code", &IMM::code)
-        .method("date", &IMM::date)
-        .method("nextDate", static_cast<Date (*)(const Date&, bool)>(&IMM::nextDate))
-        .method("nextDate", static_cast<Date (*)(const std::string&, bool, const Date&)>(&IMM::nextDate))
-        .method("nextCode", static_cast<std::string (*)(const Date&, bool)>(&IMM::nextCode))
-        .method("nextCode", static_cast<std::string (*)(const std::string&, bool, const Date&)>(&IMM::nextCode));
+    mod.add_type<IMM>("IMM");
+    mod.method("isIMMdate", &IMM::isIMMdate);
+    mod.method("isIMMcode", &IMM::isIMMcode);
+    mod.method("code", &IMM::code);
+    mod.method("date", &IMM::date);
+    mod.method("nextDate", static_cast<Date (*)(const Date&, bool)>(&IMM::nextDate));
+    mod.method("nextCode", static_cast<std::string (*)(const Date&, bool)>(&IMM::nextCode));
+    mod.method("nextCode", static_cast<std::string (*)(const std::string&, bool, const Date&)>(&IMM::nextCode));
 
     // Calendar
     mod.add_type<Calendar>("Calendar")
