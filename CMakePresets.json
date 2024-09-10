@@ -21,7 +21,7 @@
       "inherits": "windows-base",
         "cacheVariables": {
             "CMAKE_CXX_COMPILER": "cl.exe",
-            "CMAKE_CXX_STANDARD": "17",
+            "CMAKE_CXX_STANDARD": "20",
             "QL_ENABLE_SESSIONS": "ON",
             "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
             "QL_HIGH_RESOLUTION_DATE": "ON",
@@ -372,7 +372,7 @@
     {
         "name": "linux-binarybuilder",
         "cacheVariables": {
-            "CMAKE_CXX_STANDARD": "17",
+            "CMAKE_CXX_STANDARD": "20",
             "QL_ENABLE_SESSIONS": "ON",
             "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
             "QL_HIGH_RESOLUTION_DATE": "ON",
