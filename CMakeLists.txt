@@ -281,3 +281,5 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/\\\\.lgt"
     "/\\\\.mis")
 include(CPack)
+
+add_subdirectory("quantlibjl")
