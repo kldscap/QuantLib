@@ -22,8 +22,8 @@
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/experimental/exoticoptions/analyticpdfhestonengine.hpp>
-#include <ql/instruments/dividendbarrieroption.hpp>
-#include <ql/instruments/dividendvanillaoption.hpp>
+#include <ql/instruments/barrieroption.hpp>
+#include <ql/instruments/vanillaoption.hpp>
 #include <ql/math/functional.hpp>
 #include <ql/math/integrals/gausslobattointegral.hpp>
 #include <ql/math/optimization/differentialevolution.hpp>
@@ -689,7 +689,7 @@ BOOST_AUTO_TEST_CASE(testFdVanillaVsCached) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testFdVanillaWithDividendsVsCached, *precondition(if_speed(Fast))) {
+BOOST_AUTO_TEST_CASE(testFdVanillaWithDividendsVsCached) {
     BOOST_TEST_MESSAGE("Testing FD vanilla Heston engine for discrete dividends...");
 
     Date settlementDate(27, December, 2004);
@@ -715,33 +715,8 @@ BOOST_AUTO_TEST_CASE(testFdVanillaWithDividendsVsCached, *precondition(if_speed(
         dividends.push_back(1.0);
     }
 
-    QL_DEPRECATED_DISABLE_WARNING
-    DividendVanillaOption divOption(payoff, exercise,
-                                    dividendDates, dividends);
-    QL_DEPRECATED_ENABLE_WARNING
     auto process = ext::make_shared<HestonProcess>(
                    riskFreeTS, dividendTS, s0, 0.04, 1.0, 0.04, 0.001, 0.0);
-    divOption.setPricingEngine(
-        MakeFdHestonVanillaEngine(ext::make_shared<HestonModel>(process))
-            .withTGrid(200)
-            .withXGrid(400)
-            .withVGrid(100)
-        );
-
-    Real calculated = divOption.NPV();
-    // Value calculated with an independent FD framework, validated with
-    // an independent MC framework
-    Real expected = 12.946;
-    Real error = std::fabs(calculated - expected);
-    Real tolerance = 5.0e-3;
-
-    if (error > tolerance) {
-        BOOST_FAIL("failed to reproduce discrete dividend price with FD engine"
-                   << "\n    calculated: " << calculated
-                   << "\n    expected:   " << expected
-                   << "\n    error:      " << std::scientific << error);
-    }
-
 
     VanillaOption option(payoff, exercise);
     option.setPricingEngine(
@@ -752,8 +727,12 @@ BOOST_AUTO_TEST_CASE(testFdVanillaWithDividendsVsCached, *precondition(if_speed(
         .withVGrid(100)
     );
 
-    calculated = option.NPV();
-    error = std::fabs(calculated - expected);
+    Real calculated = option.NPV();
+    // Value calculated with an independent FD framework, validated with
+    // an independent MC framework
+    Real expected = 12.946;
+    Real error = std::fabs(calculated - expected);
+    Real tolerance = 5.0e-3;
 
     if (error > tolerance) {
         BOOST_FAIL("failed to reproduce discrete dividend price with FD engine"
@@ -992,7 +971,7 @@ BOOST_AUTO_TEST_CASE(testDifferentIntegrals, *precondition(if_speed(Fast))) {
     };
     const Real tol[] = { 1e-3, 1e-3, 0.2, 0.01, 1e-3 };
 
-    for (std::vector<HestonParameter>::const_iterator iter = params.begin();
+    for (auto iter = params.begin();
          iter != params.end(); ++iter) {
 
         Handle<Quote> s0(ext::make_shared<SimpleQuote>(1.0));
@@ -1841,7 +1820,7 @@ BOOST_AUTO_TEST_CASE(testCosHestonCumulants) {
 
     for (Time t=0.01; t < 41.0; t+=t) {
         const Real nc1 = NumericalDifferentiation(
-            ext::function<Real(Real)>(
+            std::function<Real(Real)>(
                 LogCharacteristicFunction(1, t, cosEngine)),
             1, 1e-5, 5, central)(0.0);
 
@@ -1855,7 +1834,7 @@ BOOST_AUTO_TEST_CASE(testCosHestonCumulants) {
         }
 
         const Real nc2 = NumericalDifferentiation(
-            ext::function<Real(Real)>(
+            std::function<Real(Real)>(
                 LogCharacteristicFunction(2, t, cosEngine)),
             2, 1e-2, 5, central)(0.0);
 
@@ -1869,7 +1848,7 @@ BOOST_AUTO_TEST_CASE(testCosHestonCumulants) {
         }
 
         const Real nc3 = NumericalDifferentiation(
-            ext::function<Real(Real)>(
+            std::function<Real(Real)>(
                 LogCharacteristicFunction(3, t, cosEngine)),
             3, 5e-3, 7, central)(0.0);
 
@@ -1883,7 +1862,7 @@ BOOST_AUTO_TEST_CASE(testCosHestonCumulants) {
         }
 
         const Real nc4 = NumericalDifferentiation(
-            ext::function<Real(Real)>(
+            std::function<Real(Real)>(
                 LogCharacteristicFunction(4, t, cosEngine)),
             4, 5e-2, 9, central)(0.0);
 

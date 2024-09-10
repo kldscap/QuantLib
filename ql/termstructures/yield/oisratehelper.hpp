@@ -31,6 +31,8 @@
 
 namespace QuantLib {
 
+    class FloatingRateCouponPricer;
+
     //! Rate helper for bootstrapping over Overnight Indexed Swap rates
     class OISRateHelper : public RelativeDateRateHelper {
       public:
@@ -52,7 +54,11 @@ namespace QuantLib {
                       RateAveraging::Type averagingMethod = RateAveraging::Compound,
                       ext::optional<bool> endOfMonth = ext::nullopt,
                       ext::optional<Frequency> fixedPaymentFrequency = ext::nullopt,
-                      Calendar fixedCalendar = Calendar());
+                      Calendar fixedCalendar = Calendar(),
+                      Natural lookbackDays = Null<Natural>(),
+                      Natural lockoutDays = 0,
+                      bool applyObservationShift = false,
+                      ext::shared_ptr<FloatingRateCouponPricer> pricer = {});
         //! \name RateHelper interface
         //@{
         Real impliedQuote() const override;
@@ -92,6 +98,10 @@ namespace QuantLib {
       ext::optional<bool> endOfMonth_;
       ext::optional<Frequency> fixedPaymentFrequency_;
       Calendar fixedCalendar_;
+      Natural lookbackDays_;
+      Natural lockoutDays_;
+      bool applyObservationShift_;
+      ext::shared_ptr<FloatingRateCouponPricer> pricer_;
     };
 
     //! Rate helper for bootstrapping over Overnight Indexed Swap rates
@@ -109,11 +119,37 @@ namespace QuantLib {
                            BusinessDayConvention paymentConvention = Following,
                            Frequency paymentFrequency = Annual,
                            const Calendar& paymentCalendar = Calendar(),
-                           const Period& forwardStart = 0 * Days,
+                           Spread overnightSpread = 0.0,
+                           ext::optional<bool> endOfMonth = ext::nullopt,
+                           ext::optional<Frequency> fixedPaymentFrequency = ext::nullopt,
+                           const Calendar& fixedCalendar = Calendar(),
+                           Natural lookbackDays = Null<Natural>(),
+                           Natural lockoutDays = 0,
+                           bool applyObservationShift = false,
+                           const ext::shared_ptr<FloatingRateCouponPricer>& pricer = {});
+
+        /*! \deprecated Use the overload without forward start.
+                        Deprecated in version 1.35.
+        */
+        QL_DEPRECATED
+        DatedOISRateHelper(const Date& startDate,
+                           const Date& endDate,
+                           const Handle<Quote>& fixedRate,
+                           const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                           // exogenous discounting curve
+                           Handle<YieldTermStructure> discountingCurve,
+                           bool telescopicValueDates,
+                           RateAveraging::Type averagingMethod,
+                           Integer paymentLag,
+                           BusinessDayConvention paymentConvention,
+                           Frequency paymentFrequency,
+                           const Calendar& paymentCalendar,
+                           const Period& forwardStart,
                            Spread overnightSpread = 0.0,
                            ext::optional<bool> endOfMonth = ext::nullopt,
                            ext::optional<Frequency> fixedPaymentFrequency = ext::nullopt,
                            const Calendar& fixedCalendar = Calendar());
+
         //! \name RateHelper interface
         //@{
         Real impliedQuote() const override;

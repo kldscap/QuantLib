@@ -20,6 +20,7 @@
 
 #include <ql/instruments/makeois.hpp>
 #include <ql/instruments/simplifynotificationgraph.hpp>
+#include <ql/cashflows/couponpricer.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/termstructures/yield/oisratehelper.hpp>
 #include <ql/utilities/null_deleter.hpp>
@@ -44,14 +45,20 @@ namespace QuantLib {
                                  RateAveraging::Type averagingMethod,
                                  ext::optional<bool> endOfMonth,
                                  ext::optional<Frequency> fixedPaymentFrequency,
-                                 Calendar fixedCalendar)
+                                 Calendar fixedCalendar,
+                                 Natural lookbackDays,
+                                 Natural lockoutDays,
+                                 bool applyObservationShift,
+                                 ext::shared_ptr<FloatingRateCouponPricer> pricer)
     : RelativeDateRateHelper(fixedRate), pillarChoice_(pillar), settlementDays_(settlementDays), tenor_(tenor),
       discountHandle_(std::move(discount)), telescopicValueDates_(telescopicValueDates),
       paymentLag_(paymentLag), paymentConvention_(paymentConvention),
       paymentFrequency_(paymentFrequency), paymentCalendar_(std::move(paymentCalendar)),
       forwardStart_(forwardStart), overnightSpread_(overnightSpread),
       averagingMethod_(averagingMethod), endOfMonth_(endOfMonth),
-      fixedPaymentFrequency_(fixedPaymentFrequency), fixedCalendar_(std::move(fixedCalendar)) {
+      fixedPaymentFrequency_(fixedPaymentFrequency), fixedCalendar_(std::move(fixedCalendar)),
+      lookbackDays_(lookbackDays), lockoutDays_(lockoutDays), applyObservationShift_(applyObservationShift),
+      pricer_(std::move(pricer)) {
 
         overnightIndex_ =
             ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex->clone(termStructureHandle_));
@@ -80,7 +87,10 @@ namespace QuantLib {
             .withPaymentFrequency(paymentFrequency_)
             .withPaymentCalendar(paymentCalendar_)
             .withOvernightLegSpread(overnightSpread_)
-            .withAveragingMethod(averagingMethod_);
+            .withAveragingMethod(averagingMethod_)
+            .withLookbackDays(lookbackDays_)
+            .withLockoutDays(lockoutDays_)
+            .withObservationShift(applyObservationShift_);
         if (endOfMonth_) {
             tmp.withEndOfMonth(*endOfMonth_);
         }
@@ -91,6 +101,9 @@ namespace QuantLib {
             tmp.withFixedLegCalendar(fixedCalendar_);
         }
         swap_ = tmp;
+
+        if (pricer_)
+            setCouponPricer(swap_->overnightLeg(), pricer_);
 
         simplifyNotificationGraph(*swap_, true);
 
@@ -168,11 +181,14 @@ namespace QuantLib {
                                            BusinessDayConvention paymentConvention,
                                            Frequency paymentFrequency,
                                            const Calendar& paymentCalendar,
-                                           const Period& forwardStart,
                                            Spread overnightSpread,
                                            ext::optional<bool> endOfMonth,
                                            ext::optional<Frequency> fixedPaymentFrequency,
-                                           const Calendar& fixedCalendar)
+                                           const Calendar& fixedCalendar,
+                                           Natural lookbackDays,
+                                           Natural lockoutDays,
+                                           bool applyObservationShift,
+                                           const ext::shared_ptr<FloatingRateCouponPricer>& pricer)
     : RateHelper(fixedRate), discountHandle_(std::move(discount)),
       telescopicValueDates_(telescopicValueDates), averagingMethod_(averagingMethod) {
 
@@ -188,7 +204,7 @@ namespace QuantLib {
 
         // input discount curve Handle might be empty now but it could
         //    be assigned a curve later; use a RelinkableHandle here
-        auto tmp = MakeOIS(Period(), clonedOvernightIndex, 0.0, forwardStart)
+        auto tmp = MakeOIS(Period(), clonedOvernightIndex, 0.0)
             .withDiscountingTermStructure(discountRelinkableHandle_)
             .withEffectiveDate(startDate)
             .withTerminationDate(endDate)
@@ -198,7 +214,10 @@ namespace QuantLib {
             .withPaymentFrequency(paymentFrequency)
             .withPaymentCalendar(paymentCalendar)
             .withOvernightLegSpread(overnightSpread)
-            .withAveragingMethod(averagingMethod_);
+            .withAveragingMethod(averagingMethod_)
+            .withLookbackDays(lookbackDays)
+            .withLockoutDays(lockoutDays)
+            .withObservationShift(applyObservationShift);
         if (endOfMonth) {
             tmp.withEndOfMonth(*endOfMonth);
         }
@@ -210,11 +229,34 @@ namespace QuantLib {
         }
         swap_ = tmp;
 
+        if (pricer)
+            setCouponPricer(swap_->overnightLeg(), pricer);
+
         earliestDate_ = swap_->startDate();
         Date lastPaymentDate = std::max(swap_->overnightLeg().back()->date(),
                                         swap_->fixedLeg().back()->date());
         latestDate_ = std::max(swap_->maturityDate(), lastPaymentDate);
     }
+
+    DatedOISRateHelper::DatedOISRateHelper(const Date& startDate,
+                                           const Date& endDate,
+                                           const Handle<Quote>& fixedRate,
+                                           const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                                           Handle<YieldTermStructure> discount,
+                                           bool telescopicValueDates,
+                                           RateAveraging::Type averagingMethod,
+                                           Integer paymentLag,
+                                           BusinessDayConvention paymentConvention,
+                                           Frequency paymentFrequency,
+                                           const Calendar& paymentCalendar,
+                                           const Period&,
+                                           Spread overnightSpread,
+                                           ext::optional<bool> endOfMonth,
+                                           ext::optional<Frequency> fixedPaymentFrequency,
+                                           const Calendar& fixedCalendar)
+    : DatedOISRateHelper(startDate, endDate, fixedRate, overnightIndex, std::move(discount), telescopicValueDates,
+                         averagingMethod, paymentLag, paymentConvention, paymentFrequency, paymentCalendar,
+                         overnightSpread, endOfMonth, fixedPaymentFrequency, fixedCalendar) {}
 
     void DatedOISRateHelper::setTermStructure(YieldTermStructure* t) {
         // do not set the relinkable handle as an observer -

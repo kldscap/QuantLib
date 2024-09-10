@@ -26,6 +26,7 @@
 #include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/experimental/volatility/noarbsabrinterpolation.hpp>
+#include <ql/experimental/math/laplaceinterpolation.hpp>
 #include <ql/math/bspline.hpp>
 #include <ql/math/functional.hpp>
 #include <ql/math/integrals/simpsonintegral.hpp>
@@ -44,11 +45,11 @@
 #include <ql/math/optimization/levenbergmarquardt.hpp>
 #include <ql/math/randomnumbers/sobolrsg.hpp>
 #include <ql/math/richardsonextrapolation.hpp>
-#include <ql/tuple.hpp>
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/utilities/null.hpp>
 #include <cmath>
 #include <utility>
+#include <tuple>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -2311,24 +2312,21 @@ BOOST_AUTO_TEST_CASE(testBSplines) {
     const Natural p = 2;
     const BSpline bspline(p, knots.size()-p-2, knots);
 
-    std::vector<ext::tuple<Natural, Real, Real>> referenceValues = {
-        ext::make_tuple(0, -0.95, 9.5238095238e-04),
-        ext::make_tuple(0, -0.01, 0.37337142857),
-        ext::make_tuple(0, 0.49, 0.84575238095),
-        ext::make_tuple(0, 1.21, 0.0),
-        ext::make_tuple(1, 1.49, 0.562987654321),
-        ext::make_tuple(1, 1.59, 0.490888888889),
-        ext::make_tuple(2, 1.99, 0.62429409171),
-        ext::make_tuple(3, 1.19, 0.0),
-        ext::make_tuple(3, 1.99, 0.12382936508),
-        ext::make_tuple(3, 3.59, 0.765914285714)
+    std::vector<std::tuple<Natural, Real, Real>> referenceValues = {
+        {0, -0.95, 9.5238095238e-04},
+        {0, -0.01, 0.37337142857},
+        {0, 0.49, 0.84575238095},
+        {0, 1.21, 0.0},
+        {1, 1.49, 0.562987654321},
+        {1, 1.59, 0.490888888889},
+        {2, 1.99, 0.62429409171},
+        {3, 1.19, 0.0},
+        {3, 1.99, 0.12382936508},
+        {3, 3.59, 0.765914285714}
     };
 
     const Real tol = 1e-10;
-    for (auto& referenceValue : referenceValues) {
-        const Natural idx = ext::get<0>(referenceValue);
-        const Real x = ext::get<1>(referenceValue);
-        const Real expected = ext::get<2>(referenceValue);
+    for (const auto& [idx, x, expected] : referenceValues) {
 
         const Real calculated = bspline(idx, x);
 
@@ -2499,6 +2497,292 @@ BOOST_AUTO_TEST_CASE(testChebyshevInterpolationUpdateY) {
                     << "\n    tolerance : " << tol);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testLaplaceInterpolation) {
+    BOOST_TEST_MESSAGE("Testing Laplace interpolation...");
+
+    Real tol = 1E-12;
+    Real na = Null<Real>();
+
+    // full matrix
+
+    Matrix m1 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m1);
+
+    BOOST_CHECK_CLOSE(m1(0, 0), 1.0, tol);
+    BOOST_CHECK_CLOSE(m1(0, 2), 4.0, tol);
+    BOOST_CHECK_CLOSE(m1(2, 0), 5.0, tol);
+    BOOST_CHECK_CLOSE(m1(2, 1), 3.0, tol);
+
+    // inner point
+
+    Matrix m2 = {
+        {1.0, 2.0, 4.0},
+        {6.0, na, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m2);
+
+    BOOST_CHECK_CLOSE(m2(1, 1), 4.5, tol);
+    BOOST_CHECK_CLOSE(m2(2, 1), 3.0, tol);
+
+    // boundaries
+
+    Matrix m3 = {
+        {1.0, na, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m3);
+
+    BOOST_CHECK_CLOSE(m3(0, 1), 2.5, tol);
+
+    Matrix m4 = {
+        {1.0, 2.0, 4.0},
+        {na, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m4);
+
+    BOOST_CHECK_CLOSE(m4(1, 0), 3.0, tol);
+
+    Matrix m5 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, na, 2.0},
+    };
+
+    laplaceInterpolation(m5);
+
+    BOOST_CHECK_CLOSE(m5(2, 1), 3.5, tol);
+
+    Matrix m6 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, na},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m6);
+
+    BOOST_CHECK_CLOSE(m6(1, 2), 3.0, tol);
+
+    // corners
+
+    Matrix m7 = {
+        {na, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m7);
+
+    BOOST_CHECK_CLOSE(m7(0, 0), 4.0, tol);
+
+    Matrix m8 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {na, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m8);
+
+    BOOST_CHECK_CLOSE(m8(2, 0), 4.5, tol);
+
+    Matrix m9 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, na},
+    };
+
+    laplaceInterpolation(m9);
+
+    BOOST_CHECK_CLOSE(m9(2, 2), 5.0, tol);
+
+    Matrix m10 = {
+        {1.0, 2.0, na},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m10);
+
+    BOOST_CHECK_CLOSE(m10(0, 2), 4.5, tol);
+
+    // one dim (col vector)
+
+    Matrix m20 = { {na}, {na}, {3.0}, {5.0}, {7.0}, {na} };
+
+    laplaceInterpolation(m20);
+
+    BOOST_CHECK_CLOSE(m20(0, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m20(1, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m20(5, 0), 7.0, tol);
+
+    // one dim (row vector)
+
+    Matrix m21 = {{na, na, 3.0, 5.0, 7.0, na}};
+
+    laplaceInterpolation(m21);
+
+    BOOST_CHECK_CLOSE(m21(0, 0), 3.0, tol);
+    BOOST_CHECK_CLOSE(m21(0, 1), 3.0, tol);
+    BOOST_CHECK_CLOSE(m21(0, 5), 7.0, tol);
+
+    // non equidistant grid, inner point
+
+    Matrix m30 = {
+        {1.0, 2.0, 4.0},
+        {6.0, na, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m30, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m30(1, 1), 26.0 / 6.0, tol);
+
+    // non equidistant grid, boundaries
+
+    Matrix m31 = {
+        {1.0, na, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m31, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m31(0, 1), 6.0 / 3.0, tol);
+
+    Matrix m32 = {
+        {1.0, 2.0, 4.0},
+        {na, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m32, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m32(1, 0), 7.0 / 3.0, tol);
+
+    Matrix m33 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, na, 2.0},
+    };
+
+    laplaceInterpolation(m33, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m33(2, 1), 12.0 / 3.0, tol);
+
+    Matrix m34 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, na},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m34, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+
+    BOOST_CHECK_CLOSE(m34(1, 2), 10.0 / 3.0, tol);
+
+    // non equidistant grid, corners
+
+    Matrix m35 = {
+        {na, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m35, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m35(0, 0), 10.0 / 3.0, tol);
+
+    Matrix m36 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {na, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m36, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m36(2, 0), 18.0 / 5.0, tol);
+
+    Matrix m37 = {
+        {1.0, 2.0, 4.0},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, na},
+    };
+
+    laplaceInterpolation(m37, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+
+    BOOST_CHECK_CLOSE(m37(2, 2), 13.0 / 3.0, tol);
+
+    Matrix m38 = {
+        {1.0, 2.0, na},
+        {6.0, 6.5, 7.0},
+        {5.0, 3.0, 2.0},
+    };
+
+    laplaceInterpolation(m38, {1.0, 2.0, 4.0}, {1.0, 2.0, 3.0});
+
+    BOOST_CHECK_CLOSE(m38(0, 2), 16.0 / 3.0, tol);
+
+    // single point with given value
+
+    Matrix m50 = {
+        {1.0},
+    };
+
+    laplaceInterpolation(m50);
+
+    BOOST_CHECK_CLOSE(m50(0, 0), 1.0, tol);
+
+    // single point with missing value
+
+    Matrix m51 = {
+        {Null<Real>()},
+    };
+
+    laplaceInterpolation(m51);
+
+    BOOST_CHECK_CLOSE(m51(0, 0), 0.0, tol);
+
+    // no point
+
+    LaplaceInterpolation l0([](const std::vector<Size>&) { return Null<Real>(); }, {});
+    BOOST_CHECK_CLOSE(l0({}), 0.0, tol);
+
+    // single test cases from actual issues observed in the field
+
+    std::vector<Real> tx = {0.0849315, 0.257534, 0.509589, 1.00548, 2.00274, 3.00274, 4.00274,
+                            5.00548,   7.00822,  10.0082,  15.011,  20.0137, 30.0219, 70.0493};
+    std::vector<Real> ty = {0.25, 1, 2, 3, 4, 5, 7, 10, 15, 20, 30, 100};
+    Matrix m52 = {{na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na},
+                  {na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, na, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, na, na},
+                  {na, na, na, na, na, na, na, na, na, na, na, na, na, na}};
+
+    // we need to allow for more iterations to achieve the desired accuracy
+    laplaceInterpolation(m52, tx, ty, 1E-6, 100);
+
+    for (auto const& v : m52) {
+        BOOST_CHECK_CLOSE(v, 1.0, 0.1);
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
