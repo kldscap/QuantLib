@@ -375,7 +375,6 @@ void currencies_module(jlcxx::Module& mod) {
         .method("fractionSymbol", &Currency::fractionSymbol)
         .method("fractionsPerUnit", &Currency::fractionsPerUnit)
         .method("rounding", &Currency::rounding)
-        .method("format", &Currency::format)
         .method("empty", &Currency::empty)
         .method("triangulationCurrency", &Currency::triangulationCurrency)
         .STRING(Currency);
